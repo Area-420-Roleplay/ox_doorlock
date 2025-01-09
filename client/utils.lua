@@ -105,110 +105,110 @@ RegisterNUICallback('notify', function(data, cb)
 end)
 
 RegisterNUICallback('createDoor', function(data, cb)
-	cb(1)
-	SetNuiFocus(false, false)
+    cb(1)
+    SetNuiFocus(false, false)
 
-	data.state = data.state and 1 or 0
+    data.state = data.state and 1 or 0
 
-	if data.items and not next(data.items) then
-		data.items = nil
-	end
+    if data.items and not next(data.items) then
+        data.items = nil
+    end
 
-	if data.characters and not next(data.characters) then
-		data.characters = nil
-	end
+    if data.characters and not next(data.characters) then
+        data.characters = nil
+    end
 
-	if data.lockpickDifficulty and not next(data.lockpickDifficulty) then
-		data.lockpickDifficulty = nil
-	end
+    if data.lockpickDifficulty and not next(data.lockpickDifficulty) then
+        data.lockpickDifficulty = nil
+    end
 
-	if data.groups and not next(data.groups) then
-		data.groups = nil
-	end
+    if data.groups and not next(data.groups) then
+        data.groups = nil
+    end
 
-	if not data.id then
-		isAddingDoorlock = true
-		local doorCount = data.doors and 2 or 1
-		local lastEntity = 0
+    if not data.id then
+        isAddingDoorlock = true
+        local doorCount = data.doors and 2 or 1
+        local lastEntity = 0
 
-		lib.showTextUI(locale('add_door_textui'))
+        exports['jg-textui']:DrawText(locale('add_door_textui')) -- Use export for showing text
 
-		repeat
-			DisablePlayerFiring(cache.playerId, true)
-			DisableControlAction(0, 25, true)
+        repeat
+            DisablePlayerFiring(cache.playerId, true)
+            DisableControlAction(0, 25, true)
 
-			local hit, entity, coords = lib.raycast.cam(1|16)
-			local changedEntity = lastEntity ~= entity
-			local doorA = tempData[1]?.entity
+            local hit, entity, coords = lib.raycast.cam(1|16)
+            local changedEntity = lastEntity ~= entity
+            local doorA = tempData[1]?.entity
 
-			if changedEntity and lastEntity ~= doorA then
-				SetEntityDrawOutline(lastEntity, false)
-			end
+            if changedEntity and lastEntity ~= doorA then
+                SetEntityDrawOutline(lastEntity, false)
+            end
 
-			lastEntity = entity
+            lastEntity = entity
 
-			if hit then
-				---@diagnostic disable-next-line: param-type-mismatch
-				DrawMarker(28, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.2, 0.2, 255, 42, 24,
-					100, false, false, 0, true, false, false, false)
-			end
+            if hit then
+                -- Draw a marker on the door position
+                DrawMarker(28, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.2, 0.2, 255, 42, 24,
+                    100, false, false, 0, true, false, false, false)
+            end
 
-			if hit and entity > 0 and GetEntityType(entity) == 3 and (doorCount == 1 or doorA ~= entity) and entityIsNotDoor(entity) then
-				if changedEntity then
-					SetEntityDrawOutline(entity, true)
-				end
+            if hit and entity > 0 and GetEntityType(entity) == 3 and (doorCount == 1 or doorA ~= entity) and entityIsNotDoor(entity) then
+                if changedEntity then
+                    SetEntityDrawOutline(entity, true)
+                end
 
-				if IsDisabledControlJustPressed(0, 24) then
-					addDoorlock(entity)
-				end
-			end
+                if IsDisabledControlJustPressed(0, 24) then
+                    addDoorlock(entity)
+                end
+            end
 
-			if IsDisabledControlJustPressed(0, 25) then
-				SetEntityDrawOutline(entity, false)
+            if IsDisabledControlJustPressed(0, 25) then
+                SetEntityDrawOutline(entity, false)
 
-				if not doorA then
-					isAddingDoorlock = false
-					return lib.hideTextUI()
-				end
+                if not doorA then
+                    isAddingDoorlock = false
+                    return exports['jg-textui']:HideText() -- Use export for hiding text
+                end
 
-				SetEntityDrawOutline(doorA, false)
-				table.wipe(tempData)
-			end
-		until tempData[doorCount]
+                SetEntityDrawOutline(doorA, false)
+                table.wipe(tempData)
+            end
+        until tempData[doorCount]
 
-		lib.hideTextUI()
-		SetEntityDrawOutline(tempData[1].entity, false)
+        exports['jg-textui']:HideText() -- Use export for hiding text
+        SetEntityDrawOutline(tempData[1].entity, false)
 
-		if data.doors then
-			SetEntityDrawOutline(tempData[2].entity, false)
-			tempData[1].entity = nil
-			tempData[2].entity = nil
-			data.doors = tempData
-		else
-			data.model = tempData[1].model
-			data.coords = tempData[1].coords
-			data.heading = tempData[1].heading
-		end
-	else
-		if data.doors then
-			for i = 1, 2 do
-				local coords = data.doors[i].coords
-				data.doors[i].coords = vector3(coords.x, coords.y, coords.z)
-				data.doors[i].entity = nil
-			end
-		else
-			data.entity = nil
-		end
+        if data.doors then
+            SetEntityDrawOutline(tempData[2].entity, false)
+            tempData[1].entity = nil
+            tempData[2].entity = nil
+            data.doors = tempData
+        else
+            data.model = tempData[1].model
+            data.coords = tempData[1].coords
+            data.heading = tempData[1].heading
+        end
+    else
+        if data.doors then
+            for i = 1, 2 do
+                local coords = data.doors[i].coords
+                data.doors[i].coords = vector3(coords.x, coords.y, coords.z)
+                data.doors[i].entity = nil
+            end
+        else
+            data.entity = nil
+        end
 
-		data.coords = vector3(data.coords.x, data.coords.y, data.coords.z)
-		data.distance = nil
-		data.zone = nil
-	end
+        data.coords = vector3(data.coords.x, data.coords.y, data.coords.z)
+        data.distance = nil
+        data.zone = nil
+    end
 
-	isAddingDoorlock = false
+    isAddingDoorlock = false
 
-	TriggerServerEvent('ox_doorlock:editDoorlock', data.id or false, data)
-	table.wipe(tempData)
+    TriggerServerEvent('ox_doorlock:editDoorlock', data.id or false, data)
+    table.wipe(tempData)
 end)
 
 RegisterNUICallback('deleteDoor', function(id, cb)

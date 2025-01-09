@@ -330,15 +330,15 @@ CreateThread(function()
 
 		if ClosestDoor and ClosestDoor.distance < ClosestDoor.maxDistance then
 			if Config.DrawTextUI and not ClosestDoor.hideUi and ClosestDoor.state ~= showUI then
-				lib.showTextUI(ClosestDoor.state == 0 and lockDoor or unlockDoor)
+				exports['jg-textui']:DrawText(ClosestDoor.state == 0 and lockDoor or unlockDoor)
 				showUI = ClosestDoor.state
 			end
-
+		
 			if not PickingLock and IsDisabledControlJustReleased(0, 38) then
 				useClosestDoor()
 			end
 		elseif showUI then
-			lib.hideTextUI()
+			exports['jg-textui']:HideText()
 			showUI = nil
 		end
 
